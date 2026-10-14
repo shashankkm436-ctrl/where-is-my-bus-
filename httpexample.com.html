@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KSRTC • Namma Bus Live | Where Is My Bus?</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#ef4444',
+              redDark: '#dc2626',
+              bg: '#0a0e17',
+              card: '#111827',
+              cardBorder: '#1f293d',
+              accent: '#3b82f6',
+              green: '#10b981',
+              yellow: '#f59e0b'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0a0e17;
+      color: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+    }
+    .hero-bg {
+      background: linear-gradient(180deg, rgba(10, 14, 23, 0.75) 0%, rgba(10, 14, 23, 0.98) 100%), 
+                  url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1600&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #111827;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 4px;
+    }
+    .pulse-glow {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .animated-ring {
+      animation: pulse-ring 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-red-500 selection:text-white">
+
+  <!-- Top Header Navigation -->
+  <header class="sticky top-0 z-50 bg-[#0a0e17]/90 backdrop-blur-md border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Brand -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('tracker')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 to-red-500 flex items-center justify-center text-white shadow-lg shadow-red-900/40">
+          <i class="fa-solid font-bold text-lg fa-bus"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="font-extrabold text-white text-lg tracking-tight">KSRTC</span>
+            <span class="text-red-500 text-xs font-bold">•</span>
+            <span class="text-gray-200 text-sm font-semibold tracking-wide" id="nav-app-name">Namma Bus Live</span>
+          </div>
+          <p class="text-[10px] text-gray-400 tracking-wider uppercase font-medium">SARATHI Real-Time GPS Network</p>
+        </div>
+      </div>
+
+      <!-- Main Desktop Navigation -->
+      <nav class="hidden lg:flex items-center space-x-1 text-sm font-medium">
+        <button onclick="switchTab('tracker')" id="nav-btn-tracker" class="px-3 py-2 rounded-lg text-white bg-red-600/20 text-red-400 border border-red-500/30 transition flex items-center space-x-2">
+          <i class="fa-solid fa-location-crosshairs text-xs"></i>
+          <span data-en="Live Bus Tracker" data-kn="ಲೈವ್ ಬಸ್ ಟ್ರ್ಯಾಕರ್">Live Bus Tracker</span>
+        </button>
+        <button onclick="switchTab('terminals')" id="nav-btn-terminals" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/60 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-building-columns text-xs"></i>
+          <span data-en="Terminal Boards" data-kn="ಟರ್ಮಿನಲ್ ಬೋರ್ಡ್‌ಗಳು">Terminal Boards</span>
+        </button>
+        <button onclick="switchTab('districts')" id="nav-btn-districts" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/60 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-map-location-dot text-xs text-yellow-500"></i>
+          <span data-en="Karnataka Places (31)" data-kn="ಕರ್ನಾಟಕದ ಸ್ಥಳಗಳು (31)">Karnataka Places (31)</span>
+        </button>
+        <button onclick="switchTab('timetable')" id="nav-btn-timetable" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/60 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-clock text-xs"></i>
+          <span data-en="Route Timetable" data-kn="ರೌಟ್ ಟೈಮ್‌ಟೇಬಲ್">Route Timetable</span>
+        </button>
+        <button onclick="switchTab('fleet')" id="nav-btn-fleet" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/60 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-bus-simple text-xs"></i>
+          <span data-en="Fleet & Classes" data-kn="ಬಸ್ ಶ್ರೇಣಿ & ವಿಭಾಗ">Fleet & Classes</span>
+        </button>
+        <button onclick="switchTab('support')" id="nav-btn-support" class="px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/60 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-headset text-xs"></i>
+          <span data-en="Passenger Support" data-kn="ಪ್ರಯಾಣಿಕರ ಸಹಾಯ">Passenger Support</span>
+        </button>
+      </nav>
+
+      <!-- Language & SOS Action Buttons -->
+      <div class="flex items-center space-x-3">
+        <!-- Language Toggle -->
+        <button onclick="toggleLanguage()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-gray-700 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-language text-sm text-red-400"></i>
+          <span id="lang-toggle-text">ಕನ್ನಡ</span>
+        </button>
+
+        <!-- Emergency SOS Call CTA -->
+        <button onclick="openSosModal()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs uppercase tracking-wide shadow-md shadow-red-900/50 flex items-center space-x-2 transition border border-red-400/30">
+          <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          <i class="fa-solid fa-phone-volume"></i>
+          <span class="hidden sm:inline" data-en="SOS & Helpline" data-kn="ತುರ್ತು ಸಹಾಯ">SOS & Helpline</span>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-gray-900/95 border-b border-gray-800 px-4 pt-2 pb-4 space-y-2">
+      <button onclick="switchTab('tracker'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-white bg-gray-800 flex items-center space-x-3">
+        <i class="fa-solid fa-location-crosshairs text-red-400"></i><span>Live Bus Tracker</span>
+      </button>
+      <button onclick="switchTab('terminals'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 flex items-center space-x-3">
+        <i class="fa-solid fa-building-columns"></i><span>Terminal Boards</span>
+      </button>
+      <button onclick="switchTab('districts'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 flex items-center space-x-3">
+        <i class="fa-solid fa-map-location-dot text-yellow-500"></i><span>Karnataka Places (31 Districts)</span>
+      </button>
+      <button onclick="switchTab('timetable'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 flex items-center space-x-3">
+        <i class="fa-solid fa-clock"></i><span>Route Timetable</span>
+      </button>
+      <button onclick="switchTab('fleet'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 flex items-center space-x-3">
+        <i class="fa-solid fa-bus-simple"></i><span>Fleet & Classes</span>
+      </button>
+      <button onclick="switchTab('support'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 flex items-center space-x-3">
+        <i class="fa-solid fa-headset"></i><span>Passenger Support & SOS</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER WITH DYNAMIC VIEW SWITCHING -->
+  <main class="flex-grow">
+
+    <!-- VIEW 1: LIVE TRACKER (DEFAULT HOME) -->
+    <section id="view-tracker" class="space-y-6 pb-12">
+      
+      <!-- Hero Banner & Search Interface -->
+      <div class="hero-bg pt-10 pb-12 px-4 sm:px-6 lg:px-8 border-b border-gray-800/80">
+        <div class="max-w-7xl mx-auto space-y-6">
+          
+          <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-950/80 border border-red-800/50 text-red-400 text-xs font-semibold">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+              <span data-en="SARATHI REAL-TIME GPS NETWORK" data-kn="ಸಾರಥಿ ರಿಯಲ್-ಟೈಮ್ ಜಿಪಿಎಸ್ ಜಾಲ">SARATHI REAL-TIME GPS NETWORK</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight" data-en="Where Is My Bus? Track KSRTC in Real-Time" data-kn="ನನ್ನ ಬಸ್ ಎಲ್ಲಿದೆ? KSRTC ಬಸ್ ನೇರ ಟ್ರ್ಯಾಕ್ ಮಾಡಿ">
+              Where Is My Bus? Track KSRTC in Real-Time
+            </h1>
+            <p class="text-sm sm:text-base text-gray-300 leading-relaxed font-normal" data-en="Live GPS coordinates, estimated arrival times, speed, platform bays, and route progress across Airavat, Ambari Utsav, Flybus, and Sarige express services." data-kn="ಐರಾವತ, ಅಂಬಾರಿ ಉತ್ಸವ, ಫ್ಲೈಬಸ್ ಮತ್ತು ಸಾರಿಗೆ ಸೇವೆಗಳ ನೈಜ-ಸಮಯದ ಜಿಪಿಎಸ್ ಸ್ಥಳ, ಇಟಿಎ, ವೇಗ, ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಸಂಖ್ಯೆ ಮತ್ತು ಮಾರ್ಗ ಪ್ರಗತಿಯನ್ನು ವೀಕ್ಷಿಸಿ.">
+              Live GPS coordinates, estimated arrival times, speed, platform bays, and route progress across Airavat, Ambari Utsav, Flybus, and Sarige express services.
+            </p>
+          </div>
+
+          <!-- Interactive Search Container -->
+          <div class="bg-gray-900/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-2xl space-y-4 max-w-4xl">
+            
+            <!-- Search Type Switcher -->
+            <div class="flex items-center space-x-2 border-b border-gray-800 pb-3 text-xs sm:text-sm font-semibold overflow-x-auto">
+              <button onclick="setSearchType('bus')" id="search-tab-bus" class="px-4 py-2 rounded-lg bg-red-600 text-white flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-bus"></i>
+                <span data-en="Bus / Vehicle No" data-kn="ಬಸ್ / ವಾಹನ ಸಂಖ್ಯೆ">Bus / Vehicle No</span>
+              </button>
+              <button onclick="setSearchType('pnr')" id="search-tab-pnr" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-ticket"></i>
+                <span data-en="Ticket PNR Track" data-kn="ಟಿಕೆಟ್ PNR ಸಂಖ್ಯೆ">Ticket PNR Track</span>
+              </button>
+              <button onclick="setSearchType('route')" id="search-tab-route" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-route"></i>
+                <span data-en="Search by Route" data-kn="ಮಾರ್ಗದ ಮೂಲಕ ಹುಡುಕಿ">Search by Route</span>
+              </button>
+            </div>
+
+            <!-- Search Form Input -->
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+              <div class="relative w-full flex-grow">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
+                <input type="text" id="busSearchInput" placeholder="Enter Bus Reg No (e.g. KA-09-F-5421) or Service Code (e.g. 0630BLR)..." 
+                       class="w-full bg-gray-950 text-white placeholder-gray-500 rounded-xl pl-11 pr-4 py-3.5 text-sm font-medium border border-gray-800 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
+              </div>
+              <button onclick="executeBusSearch()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-sm rounded-xl flex items-center justify-center space-x-2 transition shadow-lg shadow-red-900/40 whitespace-nowrap">
+                <span data-en="Track Bus Live" data-kn="ಲೈವ್ ಟ್ರ್ಯಾಕ್ ಮಾಡಿ">Track Bus Live</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </button>
+            </div>
+
+            <!-- Quick Buses Chips -->
+            <div class="space-y-2 pt-1">
+              <p class="text-xs text-gray-400 font-medium" data-en="Quick Live Buses:" data-kn="ತ್ವರಿತ ಲೈವ್ ಬಸ್‌ಗಳು:">Quick Live Buses:</p>
+              <div class="flex flex-wrap gap-2 text-xs">
+                <button onclick="loadBusData('KA-09-F-5421')" class="px-3 py-1.5 rounded-lg bg-gray-800/80 hover:bg-red-950/60 text-gray-200 border border-gray-700 hover:border-red-500/50 transition">
+                  <span class="font-bold text-red-400">KA-09-F-5421</span> - Airavat Club Class (Mysuru)
+                </button>
+                <button onclick="loadBusData('KA-19-F-3312')" class="px-3 py-1.5 rounded-lg bg-gray-800/80 hover:bg-red-950/60 text-gray-200 border border-gray-700 hover:border-red-500/50 transition">
+                  <span class="font-bold text-yellow-400">KA-19-F-3312</span> - Ambari Utsav (Mangaluru)
+                </button>
+                <button onclick="loadBusData('KA-01-F-8841')" class="px-3 py-1.5 rounded-lg bg-gray-800/80 hover:bg-red-950/60 text-gray-200 border border-gray-700 hover:border-red-500/50 transition">
+                  <span class="font-bold text-blue-400">KA-01-F-8841</span> - Flybus (Mysuru)
+                </button>
+                <button onclick="loadBusData('KA-25-F-7744')" class="px-3 py-1.5 rounded-lg bg-gray-800/80 hover:bg-red-950/60 text-gray-200 border border-gray-700 hover:border-red-500/50 transition">
+                  <span class="font-bold text-green-400">KA-25-F-7744</span> - Rajahamsa Executive (Hubballi)
+                </button>
+                <button onclick="loadBusData('KA-07-F-2289')" class="px-3 py-1.5 rounded-lg bg-gray-800/80 hover:bg-red-950/60 text-gray-200 border border-gray-700 hover:border-red-500/50 transition">
+                  <span class="font-bold text-purple-400">KA-07-F-2289</span> - Karnataka Sarige (Tirupati)
+                </button>
+                <button onclick="loadBusData('KA-12-F-1190')" class="px-3 py-1.5 rounded-lg bg-gray-800/80 hover:bg-red-950/60 text-gray-200 border border-gray-700 hover:border-red-500/50 transition">
+                  <span class="font-bold text-emerald-400">KA-12-F-1190</span> - Karnataka Sarige (Madikeri)
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Real-Time Operational Stats Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+            <div class="bg-gray-900/60 backdrop-blur-sm p-4 rounded-xl border border-gray-800/80">
+              <p class="text-xs text-gray-400 font-medium" data-en="Live GPS Buses" data-kn="ಸಕ್ರಿಯ ಜಿಪಿಎಸ್ ಬಸ್‌ಗಳು">Live GPS Buses</p>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-xl sm:text-2xl font-black text-white">8,450+</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              </div>
+            </div>
+            <div class="bg-gray-900/60 backdrop-blur-sm p-4 rounded-xl border border-gray-800/80">
+              <p class="text-xs text-gray-400 font-medium" data-en="On-Time Reliability" data-kn="ಸಮಯ ಪರಿಪಾಲನೆ">On-Time Reliability</p>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-xl sm:text-2xl font-black text-emerald-400">98.2%</span>
+                <i class="fa-solid fa-shield-halved text-emerald-500/60"></i>
+              </div>
+            </div>
+            <div class="bg-gray-900/60 backdrop-blur-sm p-4 rounded-xl border border-gray-800/80">
+              <p class="text-xs text-gray-400 font-medium" data-en="Operating Depots" data-kn="ಕಾರ್ಯನಿರತ ಡಿಪೋಗಳು">Operating Depots</p>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-xl sm:text-2xl font-black text-white">84 Depots</span>
+                <i class="fa-solid fa-warehouse text-blue-400/60"></i>
+              </div>
+            </div>
+            <div class="bg-gray-900/60 backdrop-blur-sm p-4 rounded-xl border border-gray-800/80">
+              <p class="text-xs text-gray-400 font-medium" data-en="24x7 Control Room" data-kn="24x7 ನಿಯಂತ್ರಣ ಕೊಠಡಿ">24x7 Control Room</p>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-lg sm:text-xl font-extrabold text-red-400">080-49596666</span>
+                <i class="fa-solid fa-headset text-red-500/60"></i>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TRACKER COCKPIT INTERACTIVE SECTION -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        
+        <!-- Live GPS Vehicle Tracking Cockpit Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-900 border border-gray-800 p-5 rounded-2xl shadow-xl">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
+              <h2 class="text-xl font-black text-white tracking-tight" data-en="Live GPS Vehicle Tracking Cockpit" data-kn="ಲೈವ್ ಜಿಪಿಎಸ್ ವಾಹನ ಟ್ರ್ಯಾಕಿಂಗ್ ಕಾಕ್‌ಪಿಟ್">Live GPS Vehicle Tracking Cockpit</h2>
+            </div>
+            <p class="text-xs text-gray-400 mt-1" id="cockpit-subtitle">Real-time satellite positioning for KA-09-F-5421 (Airavat Club Class)</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span class="text-xs text-gray-400">Track another:</span>
+            <select id="quickBusSelect" onchange="loadBusData(this.value)" class="bg-gray-950 text-gray-200 text-xs rounded-lg px-3 py-2 border border-gray-700 focus:outline-none">
+              <option value="KA-09-F-5421">KA-09-F-5421 - Mysuru (Airavat Club Class)</option>
+              <option value="KA-19-F-3312">KA-19-F-3312 - Mangaluru (Ambari Utsav)</option>
+              <option value="KA-01-F-8841">KA-01-F-8841 - Mysuru (Flybus Volvo)</option>
+              <option value="KA-25-F-7744">KA-25-F-7744 - Hubballi (Rajahamsa)</option>
+              <option value="KA-07-F-2289">KA-07-F-2289 - Tirupati (Karnataka Sarige)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Bus Details Header Banner -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+            
+            <div class="flex items-start space-x-4">
+              <div class="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-500 text-2xl flex-shrink-0">
+                <i class="fa-solid fa-bus"></i>
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 id="current-bus-no" class="text-2xl font-black text-white tracking-wide">KA-09-F-5421</h3>
+                  <span id="current-bus-class" class="px-2.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-extrabold border border-yellow-500/30">
+                    Airavat Club Class
+                  </span>
+                  <span id="current-service-code" class="text-xs text-gray-400 font-mono bg-gray-800 px-2 py-0.5 rounded">0630BLR-MYS-AIR</span>
+                </div>
+                <p id="current-route-title" class="text-sm font-semibold text-gray-300 mt-1">Bengaluru (Majestic) ➔ Mysuru Suburban (Express Direct)</p>
+                <p id="current-bus-model" class="text-xs text-gray-400 mt-0.5">Multi-Axle AC Semi Sleeper (Volvo B11R)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <div id="status-badge" class="px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="status-text">On Time</span>
+              </div>
+              <button onclick="copyBusShareLink()" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition" title="Share Bus Location">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Live Metrics Strip -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium">
+            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800 flex items-center space-x-3">
+              <i class="fa-solid fa-location-dot text-red-500 text-lg"></i>
+              <div>
+                <span class="text-gray-400 block text-[11px]">Next Stop:</span>
+                <span id="next-stop-name" class="text-white font-bold text-sm">Mysuru Suburban Central Bus Stand</span>
+                <span id="next-stop-platform" class="text-xs text-yellow-400 font-semibold block">Platform: Bay 18</span>
+              </div>
+            </div>
+            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800 flex items-center space-x-3">
+              <i class="fa-solid fa-gauge-high text-blue-400 text-lg"></i>
+              <div>
+                <span class="text-gray-400 block text-[11px]">Current Speed:</span>
+                <span id="current-speed" class="text-white font-bold text-sm">70 km/h</span>
+                <span class="text-xs text-gray-400 block">GPS Interval: 2s update</span>
+              </div>
+            </div>
+            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800 flex items-center space-x-3">
+              <i class="fa-solid fa-clock text-emerald-400 text-lg"></i>
+              <div>
+                <span class="text-gray-400 block text-[11px]">ETA Next Stop:</span>
+                <span id="eta-time" class="text-white font-bold text-sm">09:45 AM (In 18 mins)</span>
+                <span class="text-xs text-emerald-400 block font-semibold">On Schedule</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ANIMATED GPS MAP TRACK SIMULATOR -->
+          <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 relative overflow-hidden space-y-6">
+            
+            <div class="flex items-center justify-between text-xs text-gray-400 font-medium">
+              <span>Origin: Kempegowda Bus Station</span>
+              <span>Destination: Mysuru Suburban</span>
+            </div>
+
+            <!-- Curved Interactive Route Graphic Canvas/SVG Wrapper -->
+            <div class="relative w-full py-10 px-4 min-h-[180px] flex items-center justify-between">
+              
+              <!-- Track Line Graphic -->
+              <div class="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div id="route-progress-bar-fill" class="h-full bg-gradient-to-r from-emerald-500 via-yellow-500 to-red-500 w-[55%] transition-all duration-500"></div>
+              </div>
+
+              <!-- Animated Bus Sprite moving on track -->
+              <div id="animated-bus-icon" class="absolute top-1/2 -translate-y-1/2 z-20 transition-all duration-500" style="left: calc(55% - 20px);">
+                <div class="relative flex flex-col items-center">
+                  <div class="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-bold shadow mb-1 whitespace-nowrap">
+                    <span id="sim-speed-text">70 km/h</span>
+                  </div>
+                  <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center text-lg shadow-lg pulse-glow border-2 border-white">
+                    <i class="fa-solid fa-bus-simple"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Route Stop Nodes -->
+              <div class="relative z-10 w-full flex justify-between items-center text-center">
+                
+                <!-- Stop 1 -->
+                <div class="flex flex-col items-center">
+                  <div class="w-5 h-5 rounded-full bg-emerald-500 ring-4 ring-gray-900 flex items-center justify-center text-[10px] text-black font-bold">✓</div>
+                  <span class="text-[11px] font-bold text-gray-300 mt-2">Kempegowda</span>
+                  <span class="text-[10px] text-gray-500">06:30 • Bay 12</span>
+                </div>
+
+                <!-- Stop 2 -->
+                <div class="flex flex-col items-center">
+                  <div class="w-5 h-5 rounded-full bg-emerald-500 ring-4 ring-gray-900 flex items-center justify-center text-[10px] text-black font-bold">✓</div>
+                  <span class="text-[11px] font-bold text-gray-300 mt-2">Kengeri TTMC</span>
+                  <span class="text-[10px] text-gray-500">07:05 • Bay 03</span>
+                </div>
+
+                <!-- Stop 3 -->
+                <div class="flex flex-col items-center">
+                  <div class="w-5 h-5 rounded-full bg-yellow-500 ring-4 ring-yellow-500/20 flex items-center justify-center text-[10px] text-black font-bold animated-ring">●</div>
+                  <span class="text-[11px] font-extrabold text-yellow-400 mt-2">Channapatna</span>
+                  <span class="text-[10px] text-yellow-500 font-semibold">08:15 • Current</span>
+                </div>
+
+                <!-- Stop 4 -->
+                <div class="flex flex-col items-center">
+                  <div class="w-4 h-4 rounded-full bg-gray-700 ring-4 ring-gray-900"></div>
+                  <span class="text-[11px] font-medium text-gray-400 mt-2">Mandya</span>
+                  <span class="text-[10px] text-gray-500">08:50 • Bay 01</span>
+                </div>
+
+                <!-- Stop 5 -->
+                <div class="flex flex-col items-center">
+                  <div class="w-4 h-4 rounded-full bg-gray-700 ring-4 ring-gray-900"></div>
+                  <span class="text-[11px] font-medium text-gray-400 mt-2">Mysuru Suburban</span>
+                  <span class="text-[10px] text-gray-500">09:45 • Bay 18</span>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Trip Progress Metrics & Simulation Controls -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-800">
+              
+              <!-- Progress numbers -->
+              <div class="flex items-center space-x-6 text-xs">
+                <div>
+                  <span class="text-gray-400 block">Trip Progress</span>
+                  <span id="trip-percentage" class="text-base font-extrabold text-white">55%</span>
+                </div>
+                <div class="border-l border-gray-800 pl-6">
+                  <span class="text-gray-400 block">Covered Distance</span>
+                  <span id="distance-covered" class="text-sm font-bold text-emerald-400">79 km</span>
+                </div>
+                <div class="border-l border-gray-800 pl-6">
+                  <span class="text-gray-400 block">Remaining</span>
+                  <span id="distance-remaining" class="text-sm font-bold text-yellow-400">66 km</span>
+                </div>
+              </div>
+
+              <!-- Live Simulation Control Buttons -->
+              <div class="flex items-center space-x-2">
+                <span class="text-xs text-gray-400 mr-1 hidden sm:inline">Live GPS Simulation:</span>
+                <button onclick="toggleSimulation()" id="sim-toggle-btn" class="px-3 py-1.5 rounded-lg bg-yellow-600/30 hover:bg-yellow-600/50 text-yellow-300 border border-yellow-500/40 text-xs font-bold transition flex items-center space-x-1.5">
+                  <i id="sim-icon" class="fa-solid fa-pause"></i>
+                  <span id="sim-text">Pause</span>
+                </button>
+                <button onclick="setSpeedMultiplier(1)" id="speed-1x-btn" class="px-2.5 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold">1x</button>
+                <button onclick="setSpeedMultiplier(2)" id="speed-2x-btn" class="px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold">2x</button>
+                <button onclick="triggerNextStop()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 text-xs font-bold flex items-center space-x-1">
+                  <i class="fa-solid fa-forward-step"></i>
+                  <span>Next Stop</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Conditions & Driver Quick Contact Bar -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div class="flex items-center space-x-2 text-xs">
+                <span class="text-gray-400">Road condition:</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[11px] font-semibold">Clear Expressway</span>
+                <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800 text-[11px] font-semibold">Toll Plaza</span>
+                <span class="px-2 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700 text-[11px] font-semibold">Ghat Rain (None)</span>
+              </div>
+              <div class="flex items-center justify-between md:justify-end space-x-4 text-xs">
+                <div class="flex items-center space-x-2">
+                  <i class="fa-solid fa-bell text-yellow-400"></i>
+                  <span class="text-gray-300">Proximity Arrival Alert</span>
+                </div>
+                <button onclick="toggleAlerts()" id="alert-toggle-btn" class="px-3 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold">
+                  Enabled
+                </button>
+              </div>
+            </div>
+
+            <!-- Driver & Depot Details Card -->
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-bold">
+                  <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <div>
+                  <span class="text-white font-bold block" id="driver-name">Ramesh H. Gowda (Driver)</span>
+                  <span class="text-gray-400" id="depot-name">Depot: MYSURU CENTRAL DEPOT-2</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="callDriver()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg flex items-center space-x-1.5 font-medium transition">
+                  <i class="fa-solid fa-phone text-emerald-400"></i>
+                  <span>Call Crew</span>
+                </button>
+                <button onclick="openSosModal()" class="px-3 py-1.5 bg-red-600/30 hover:bg-red-600/50 text-red-300 border border-red-500/40 rounded-lg flex items-center space-x-1.5 font-bold transition">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>Report SOS</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Live Stop-by-Stop Itinerary & Platform Bays Card -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+            <div>
+              <h3 class="text-lg font-bold text-white" data-en="Live Stop-by-Stop Itinerary & Platforms" data-kn="ನಿಲುಗಡೆಗಳ ನೈಜ-ಸಮಯದ ವಿವರಗಳು">Live Stop-by-Stop Itinerary & Platforms</h3>
+              <p class="text-xs text-gray-400" id="itinerary-subtitle">All scheduled stops, platform bays, and halt times for KA-09-F-5421</p>
+            </div>
+            <span class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full border border-gray-700" id="total-stops-badge">Total Stops: 9</span>
+          </div>
+
+          <!-- Timeline Container -->
+          <div id="stops-container" class="space-y-3 pt-2">
+            <!-- Dynamically Rendered Stops via Javascript -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- VIEW 2: TERMINAL BOARDS -->
+    <section id="view-terminals" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+        <div>
+          <h2 class="text-2xl font-black text-white" data-en="KSRTC Live Terminal Departure & Arrival Boards" data-kn="ಟರ್ಮಿನಲ್ ನಿರ್ಗಮನ ಮತ್ತು ಆಗಮನ ಬೋರ್ಡ್‌ಗಳು">KSRTC Live Terminal Departure & Arrival Boards</h2>
+          <p class="text-xs text-gray-400 mt-1">Real-time status of platforms, departure bays, and delays across major bus terminals.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <select id="terminalSelect" onchange="filterTerminalBoard()" class="bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none">
+            <option value="all">All Terminals</option>
+            <option value="Kempegowda (Majestic)">Kempegowda Bus Station (Majestic), Bengaluru</option>
+            <option value="Mysuru Suburban">Mysuru Suburban Bus Stand</option>
+            <option value="Mangaluru KSRTC">Mangaluru Bejai KSRTC Terminal</option>
+            <option value="Hubballi Old Stand">Hubballi Gokul Road Terminal</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Live Terminal Table -->
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-950 text-gray-400 font-bold uppercase border-b border-gray-800 tracking-wider">
+              <tr>
+                <th class="p-4">Service / Bus No</th>
+                <th class="p-4">Bus Class</th>
+                <th class="p-4">Destination</th>
+                <th class="p-4">Terminal / Stand</th>
+                <th class="p-4">Platform Bay</th>
+                <th class="p-4">Sched Departure</th>
+                <th class="p-4">Live Status</th>
+              </tr>
+            </thead>
+            <tbody id="terminal-tbody" class="divide-y divide-gray-800 font-medium text-gray-200">
+              <!-- Populated via Javascript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- VIEW 3: KARNATAKA PLACES (31 DISTRICTS) -->
+    <section id="view-districts" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+        <div>
+          <h2 class="text-2xl font-black text-white" data-en="Karnataka 31 Districts Live Bus Coverage" data-kn="ಕರ್ನಾಟಕದ 31 ಜಿಲ್ಲೆಗಳ ಬಸ್ ಸಂಚಾರ ಮಾಹಿತಿ">Karnataka 31 Districts Live Bus Coverage</h2>
+          <p class="text-xs text-gray-400 mt-1">Select any district to see active fleet, main bus stands, and key express routes.</p>
+        </div>
+        <div class="relative w-full md:w-64">
+          <input type="text" id="districtSearch" onkeyup="filterDistricts()" placeholder="Filter district name..." class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-red-500">
+        </div>
+      </div>
+
+      <!-- Districts Grid -->
+      <div id="districts-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Rendered via Javascript -->
+      </div>
+    </section>
+
+
+    <!-- VIEW 4: ROUTE TIMETABLE -->
+    <section id="view-timetable" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div class="border-b border-gray-800 pb-4">
+        <h2 class="text-2xl font-black text-white" data-en="KSRTC Route Schedules & Timetable Lookup" data-kn="ಬಸ್ ಮಾರ್ಗ ವೇಳಾಪಟ್ಟಿ">KSRTC Route Schedules & Timetable Lookup</h2>
+        <p class="text-xs text-gray-400 mt-1">Search scheduled departures, frequencies, and ticket fares between major cities.</p>
+      </div>
+
+      <div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl shadow-xl space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-semibold">From (Origin)</label>
+            <select id="tt-origin" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none">
+              <option value="Bengaluru">Bengaluru (Majestic / Satellite)</option>
+              <option value="Mysuru">Mysuru Suburban</option>
+              <option value="Mangaluru">Mangaluru</option>
+              <option value="Hubballi">Hubballi</option>
+              <option value="Belagavi">Belagavi</option>
+              <option value="Shivamogga">Shivamogga</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-semibold">To (Destination)</label>
+            <select id="tt-dest" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none">
+              <option value="Mysuru">Mysuru Suburban</option>
+              <option value="Bengaluru">Bengaluru (Majestic)</option>
+              <option value="Mangaluru">Mangaluru</option>
+              <option value="Dharmasthala">Dharmasthala</option>
+              <option value="Madikeri">Madikeri (Coorg)</option>
+              <option value="Kalaburagi">Kalaburagi</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button onclick="searchTimetable()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-xl text-xs shadow-lg transition">
+              Find Buses & Timings
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="timetable-results" class="space-y-3">
+        <!-- Rendered Results -->
+      </div>
+    </section>
+
+
+    <!-- VIEW 5: FLEET & CLASSES -->
+    <section id="view-fleet" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div class="border-b border-gray-800 pb-4">
+        <h2 class="text-2xl font-black text-white" data-en="KSRTC Premium Fleet & Bus Classes" data-kn="ಕೆಎಸ್‌ಆರ್‌ಟಿಸಿ ಬಸ್ ವಿಭಾಗಗಳು">KSRTC Premium Fleet & Bus Classes</h2>
+        <p class="text-xs text-gray-400 mt-1">Explore amenities, seating configurations, and luxury features across our flagship services.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="fleet-grid">
+        <!-- Rendered via Javascript -->
+      </div>
+    </section>
+
+
+    <!-- VIEW 6: PASSENGER SUPPORT & SOS -->
+    <section id="view-support" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div class="border-b border-gray-800 pb-4">
+        <h2 class="text-2xl font-black text-white" data-en="Passenger Assistance, Helplines & SOS" data-kn="ಪ್ರಯಾಣಿಕರ ನೆರವು ಮತ್ತು ಸಹಾಯವಾಣಿ">Passenger Assistance, Helplines & SOS</h2>
+        <p class="text-xs text-gray-400 mt-1">Instant support for lost baggage, ticket refund status, medical emergencies, and feedback.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Emergency Numbers Card -->
+        <div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl space-y-4">
+          <div class="flex items-center space-x-3 text-red-500">
+            <i class="fa-solid fa-phone-volume text-2xl"></i>
+            <h3 class="text-lg font-bold text-white">Emergency Numbers</h3>
+          </div>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 bg-red-950/40 border border-red-800/50 rounded-xl flex justify-between items-center">
+              <div>
+                <p class="text-white font-bold">24x7 KSRTC Control Room</p>
+                <p class="text-red-400 font-extrabold text-sm">080-49596666</p>
+              </div>
+              <a href="tel:08049596666" class="px-3 py-1.5 bg-red-600 text-white rounded-lg font-bold">Call</a>
+            </div>
+            <div class="p-3 bg-gray-950 border border-gray-800 rounded-xl flex justify-between items-center">
+              <div>
+                <p class="text-white font-bold">State Emergency (Police/Medical)</p>
+                <p class="text-gray-300 font-bold">112 / 108</p>
+              </div>
+              <a href="tel:112" class="px-3 py-1.5 bg-gray-800 text-gray-200 rounded-lg font-bold">Call</a>
+            </div>
+            <div class="p-3 bg-gray-950 border border-gray-800 rounded-xl flex justify-between items-center">
+              <div>
+                <p class="text-white font-bold">Women Safety Helpline</p>
+                <p class="text-pink-400 font-bold">1091 / 080-22861212</p>
+              </div>
+              <a href="tel:1091" class="px-3 py-1.5 bg-pink-900/60 text-pink-200 rounded-lg font-bold">Call</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lost & Found Desk -->
+        <div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl space-y-4 lg:col-span-2">
+          <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-box-open text-yellow-500 mr-2"></i>Lost & Found Item Portal</h3>
+          <p class="text-xs text-gray-400">Did you leave luggage or personal items on a KSRTC bus? File a quick ticket with depot officials.</p>
+
+          <form onsubmit="submitLostReport(event)" class="space-y-3 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input type="text" placeholder="Your Name *" required class="bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:outline-none">
+              <input type="tel" placeholder="Mobile Number *" required class="bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:outline-none">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input type="text" placeholder="Bus Registration / Ticket PNR *" required class="bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:outline-none">
+              <input type="date" required class="bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:outline-none">
+            </div>
+            <textarea placeholder="Describe lost items (bag color, contents, seat number)..." rows="3" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:outline-none"></textarea>
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl transition">
+              Submit Lost & Found Request
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SOS EMERGENCY MODAL -->
+  <div id="sosModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-gray-900 border-2 border-red-600 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+      <button onclick="closeSosModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 text-red-500">
+        <div class="w-12 h-12 rounded-full bg-red-600/20 border border-red-500/50 flex items-center justify-center text-2xl animate-pulse">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-white">EMERGENCY SOS ALERT</h3>
+          <p class="text-xs text-red-400 font-semibold">Immediate Assistance Dispatch</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-gray-300 leading-relaxed">
+        Pressing call will instantly link you to the <strong class="text-white">Central KSRTC Control Desk (080-49596666)</strong> and broadcast your bus live GPS coordinates to nearest Highway Patrol.
+      </p>
+
+      <div class="space-y-2">
+        <a href="tel:08049596666" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-black text-center rounded-xl flex items-center justify-center space-x-2 text-sm shadow-lg">
+          <i class="fa-solid fa-phone"></i>
+          <span>DIAL 080-49596666 NOW</span>
+        </a>
+        <button onclick="simulateSosBeacon()" class="w-full py-3 bg-gray-800 hover:bg-gray-700 text-yellow-400 font-bold text-center rounded-xl text-xs border border-yellow-500/30">
+          Transmit GPS SOS Beacon to Driver & Highway Police
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Box -->
+  <div id="toastBox" class="fixed bottom-5 right-5 z-50 hidden bg-gray-900 border border-gray-700 text-white px-4 py-3 rounded-xl shadow-2xl text-xs flex items-center space-x-3">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="toastMsg" class="font-medium">Action completed successfully!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-950 border-t border-gray-800 py-8 text-xs text-gray-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <span class="font-bold text-gray-300">Karnataka State Road Transport Corporation (KSRTC)</span>
+        <span>• SARATHI GPS v4.2</span>
+      </div>
+      <p>© 2026 KSRTC Namma Bus Live. All live GPS tracks simulated for real-time monitoring preview.</p>
+    </div>
+  </footer>
+
+  <!-- APPLICATION LOGIC & DATA SCRIPT -->
+  <script>
+    // --- STATE MANAGEMENT ---
+    let currentLang = 'en'; // 'en' or 'kn'
+    let currentTab = 'tracker';
+    let isSimulating = true;
+    let simSpeedMultiplier = 1;
+    let simInterval = null;
+    let busProgress = 55; // percentage
+    let proximityAlerts = true;
+
+    // --- MOCK DATABASE FOR BUSES ---
+    const busesDB = {
+      'KA-09-F-5421': {
+        no: 'KA-09-F-5421',
+        class: 'Airavat Club Class',
+        classColor: 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30',
+        serviceCode: '0630BLR-MYS-AIR',
+        route: 'Bengaluru (Majestic) ➔ Mysuru Suburban',
+        model: 'Multi-Axle AC Semi Sleeper (Volvo B11R)',
+        status: 'On Time',
+        statusColor: 'bg-emerald-950/80 text-emerald-400 border-emerald-500/40',
+        speed: 70,
+        nextStop: 'Mysuru Suburban Central Bus Stand',
+        platform: 'Platform: Bay 18',
+        eta: '09:45 AM (In 18 mins)',
+        driver: 'Ramesh H. Gowda',
+        depot: 'MYSURU CENTRAL DEPOT-2',
+        coveredKm: 79,
+        remKm: 66,
+        progress: 55,
+        stops: [
+          { name: 'Kempegowda Bus Station (Majestic)', city: 'Bengaluru', dist: '0 km from origin', halt: '10 mins', sched: '06:30', bay: 'Bay 12', status: 'Departed', past: true },
+          { name: 'Kengeri TTMC Bus Terminal', city: 'Bengaluru', dist: '18 km from origin', halt: '3 mins', sched: '07:05', bay: 'Bay 03', status: 'Departed', past: true },
+          { name: 'Bidadi Smart Toll Junction', city: 'Ramanagara', dist: '32 km from origin', halt: 'Pass-through', sched: '07:28', bay: 'Express Way', status: 'Departed', past: true },
+          { name: 'Ramanagara Bypass Flyover', city: 'Ramanagara', dist: '48 km from origin', halt: '2 mins', sched: '07:54', bay: 'Bay 02', status: 'Departed', past: true },
+          { name: 'Channapatna KSRTC Bus Stand', city: 'Channapatna', dist: '58 km from origin', halt: '5 mins', sched: '08:15', bay: 'Bay 01', status: 'Current Stop', past: false, active: true },
+          { name: 'Maddur Highway Rest Stop', city: 'Mandya', dist: '74 km from origin', halt: '15 mins', sched: '08:38', bay: 'Bay 01', status: 'Upcoming', past: false },
+          { name: 'Mandya Central Bus Stand', city: 'Mandya', dist: '98 km from origin', halt: '5 mins', sched: '08:50', bay: 'Bay 04', status: 'Upcoming', past: false },
+          { name: 'Srirangapatna Ranganatha Temple Cross', city: 'Mandya', dist: '128 km from origin', halt: '2 mins', sched: '09:25', bay: 'Express Bay', status: 'Upcoming', past: false },
+          { name: 'Mysuru Suburban Central Bus Stand', city: 'Mysuru', dist: '145 km from origin', halt: 'Destination', sched: '09:45', bay: 'Platform 18', status: 'Upcoming', past: false }
+        ]
+      },
+      'KA-19-F-3312': {
+        no: 'KA-19-F-3312',
+        class: 'Ambari Utsav',
+        classColor: 'text-purple-400 bg-purple-500/20 border-purple-500/30',
+        serviceCode: '2100BLR-MNG-UTS',
+        route: 'Bengaluru (Majestic) ➔ Mangaluru Bejai',
+        model: 'Volvo B11R AC Night Sleeper',
+        status: 'Delayed 10 mins',
+        statusColor: 'bg-yellow-950/80 text-yellow-400 border-yellow-500/40',
+        speed: 58,
+        nextStop: 'Sakleshpur Ghat Stop',
+        platform: 'Platform: Bay 04',
+        eta: '04:15 AM',
+        driver: 'Shekar Poojary',
+        depot: 'MANGALURU DEPOT-1',
+        coveredKm: 210,
+        remKm: 140,
+        progress: 60,
+        stops: [
+          { name: 'Kempegowda Bus Station', city: 'Bengaluru', dist: '0 km', halt: '15 mins', sched: '21:00', bay: 'Bay 20', status: 'Departed', past: true },
+          { name: 'Hassan Bus Stand', city: 'Hassan', dist: '180 km', halt: '10 mins', sched: '00:30', bay: 'Bay 02', status: 'Departed', past: true },
+          { name: 'Sakleshpur Town Stop', city: 'Hassan', dist: '220 km', halt: '5 mins', sched: '02:00', bay: 'Bay 01', status: 'Current Stop', past: false, active: true },
+          { name: 'Uppinangady Cross', city: 'Dakshina Kannada', dist: '300 km', halt: '3 mins', sched: '03:45', bay: 'Bay 03', status: 'Upcoming', past: false },
+          { name: 'Mangaluru Bejai KSRTC Terminal', city: 'Mangaluru', dist: '350 km', halt: 'Destination', sched: '04:45', bay: 'Bay 08', status: 'Upcoming', past: false }
+        ]
+      },
+      'KA-01-F-8841': {
+        no: 'KA-01-F-8841',
+        class: 'Flybus Volvo',
+        classColor: 'text-blue-400 bg-blue-500/20 border-blue-500/30',
+        serviceCode: '1030KIA-MYS-FLY',
+        route: 'Kempegowda Int. Airport (KIA) ➔ Mysuru Suburban',
+        model: 'Volvo Multi-Axle with Chemical Toilet & Live Display',
+        status: 'On Time',
+        statusColor: 'bg-emerald-950/80 text-emerald-400 border-emerald-500/40',
+        speed: 82,
+        nextStop: 'Columbia Asia Junction Mysuru',
+        platform: 'Platform: Express Bay',
+        eta: '01:10 PM',
+        driver: 'Anand Kumar',
+        depot: 'BANGALORE CENTRAL DIVISION',
+        coveredKm: 130,
+        remKm: 40,
+        progress: 75,
+        stops: [
+          { name: 'KIA Bengaluru Airport Terminal 1', city: 'Bengaluru Airport', dist: '0 km', halt: '20 mins', sched: '10:30', bay: 'Flybus Bay 5', status: 'Departed', past: true },
+          { name: 'Hebbal Flyover Junction', city: 'Bengaluru', dist: '30 km', halt: '2 mins', sched: '11:10', bay: 'Express Bay', status: 'Departed', past: true },
+          { name: 'Mandya Bypass', city: 'Mandya', dist: '115 km', halt: 'Non-stop', sched: '12:30', bay: 'Express Bay', status: 'Departed', past: true },
+          { name: 'Mysuru Suburban Bus Terminal', city: 'Mysuru', dist: '170 km', halt: 'Destination', sched: '13:20', bay: 'Bay 22', status: 'Current Stop', past: false, active: true }
+        ]
+      }
+    };
+
+    // --- KARNATAKA 31 DISTRICTS LIST ---
+    const districtsData = [
+      { name: 'Bengaluru Urban', code: 'KA-01..05', depot: 'Majestic / Satellite', buses: 1240 },
+      { name: 'Mysuru', code: 'KA-09', depot: 'Mysuru Suburban / Rural', buses: 680 },
+      { name: 'Dakshina Kannada (Mangaluru)', code: 'KA-19', depot: 'Bejai Terminal', buses: 450 },
+      { name: 'Hubballi-Dharwad', code: 'KA-25', depot: 'Gokul Road', buses: 520 },
+      { name: 'Belagavi', code: 'KA-22', depot: 'Belagavi Central', buses: 480 },
+      { name: 'Kalaburagi', code: 'KA-32', depot: 'Kalaburagi Central', buses: 390 },
+      { name: 'Shivamogga', code: 'KA-14', depot: 'Shivamogga Bus Stand', buses: 310 },
+      { name: 'Hassan', code: 'KA-13', depot: 'Hassan Central', buses: 290 },
+      { name: 'Kodagu (Madikeri)', code: 'KA-12', depot: 'Madikeri Depot', buses: 180 },
+      { name: 'Chikkamagaluru', code: 'KA-18', depot: 'KSRTC Bus Stand', buses: 210 },
+      { name: 'Ballari', code: 'KA-34', depot: 'Ballari Central', buses: 330 },
+      { name: 'Udupi', code: 'KA-20', depot: 'Udupi KSRTC Complex', buses: 270 },
+      { name: 'Vijayapura', code: 'KA-28', depot: 'Vijayapura Central', buses: 310 },
+      { name: 'Davangere', code: 'KA-17', depot: 'Davangere Bus Stand', buses: 260 },
+      { name: 'Tumakuru', code: 'KA-06', depot: 'Tumakuru KSRTC', buses: 340 },
+      { name: 'Uttara Kannada (Karwar)', code: 'KA-30', depot: 'Karwar Terminal', buses: 190 },
+      { name: 'Chitradurga', code: 'KA-16', depot: 'Chitradurga Depot', buses: 220 },
+      { name: 'Mandya', code: 'KA-11', depot: 'Mandya Central', buses: 280 },
+      { name: 'Ramanagara', code: 'KA-42', depot: 'Ramanagara TTMC', buses: 190 },
+      { name: 'Kolar', code: 'KA-07', depot: 'Kolar Central', buses: 210 },
+      { name: 'Chikkaballapura', code: 'KA-40', depot: 'Chikkaballapura Depot', buses: 175 },
+      { name: 'Bagalkote', code: 'KA-29', depot: 'Bagalkote Bus Stand', buses: 230 },
+      { name: 'Gadag', code: 'KA-26', depot: 'Gadag Depot', buses: 185 },
+      { name: 'Koppal', code: 'KA-37', depot: 'Koppal Depot', buses: 160 },
+      { name: 'Raichur', code: 'KA-36', depot: 'Raichur Central', buses: 290 },
+      { name: 'Yadgir', code: 'KA-33', depot: 'Yadgir Bus Stand', buses: 140 },
+      { name: 'Bidar', code: 'KA-38', depot: 'Bidar Central', buses: 210 },
+      { name: 'Chamarajanagar', code: 'KA-10', depot: 'Chamarajanagar Stand', buses: 165 },
+      { name: 'Vijayanagara (Hospet)', code: 'KA-35', depot: 'Hospet Terminal', buses: 250 },
+      { name: 'Bengaluru Rural', code: 'KA-43', depot: 'Doddaballapura', buses: 130 },
+      { name: 'Vijayanagara / Haveri', code: 'KA-27', depot: 'Haveri Central', buses: 175 }
+    ];
+
+    // --- FLEET CLASS SHOWCASE DATA ---
+    const fleetData = [
+      {
+        name: 'Ambari Utsav',
+        badge: 'Volvo B11R AC Sleeper',
+        desc: 'Supreme luxury night sleeper with metallic body, individual USB ports, soft ambient lights, and ergonomic berths.',
+        icon: 'fa-bed',
+        tag: 'Premium Luxury'
+      },
+      {
+        name: 'Airavat Club Class',
+        badge: 'Volvo B11R Multi-Axle',
+        desc: 'Reclining plush leatherette seats, calf rest support, onboard entertainment displays, and air suspension smooth ride.',
+        icon: 'fa-couch',
+        tag: 'AC Express'
+      },
+      {
+        name: 'Flybus',
+        badge: 'Airport Direct Volvo',
+        desc: 'Direct connection from Kempegowda International Airport to Mysuru/Madikeri with live flight status screens and chemical washroom.',
+        icon: 'fa-plane-departure',
+        tag: 'Airport Non-stop'
+      },
+      {
+        name: 'Rajahamsa Executive',
+        badge: 'Non-AC Recliner 2+2',
+        desc: 'Popular intercity express featuring comfortable pusher-back seats, air suspension, and wide glass panorama windows.',
+        icon: 'fa-chair',
+        tag: 'Popular Express'
+      },
+      {
+        name: 'Karnataka Sarige',
+        badge: 'Standard Express',
+        desc: 'The backbone of Karnataka public transit connecting rural districts, regional hubs, and towns with punctual schedules.',
+        icon: 'fa-bus-simple',
+        tag: 'Statewide Backbone'
+      }
+    ];
+
+    // --- INITIALIZATION ON WINDOW LOAD ---
+    window.onload = function() {
+      loadBusData('KA-09-F-5421');
+      startSimulation();
+      renderDistricts();
+      renderTerminalBoard();
+      renderFleetGrid();
+    };
+
+    // --- TAB SWITCHING ---
+    function switchTab(tabId) {
+      currentTab = tabId;
+      const tabs = ['tracker', 'terminals', 'districts', 'timetable', 'fleet', 'support'];
+      tabs.forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`nav-btn-${t}`);
+        if(view) {
+          if(t === tabId) {
+            view.classList.remove('hidden');
+          } else {
+            view.classList.add('hidden');
+          }
+        }
+        if(btn) {
+          if(t === tabId) {
+            btn.className = "px-3 py-2 rounded-lg text-white bg-red-600/20 text-red-400 border border-red-500/30 transition flex items-center space-x-2 font-bold";
+          } else {
+            btn.className = "px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/60 transition flex items-center space-x-1.5 font-medium";
+          }
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    // --- LANGUAGE TOGGLE (KANNADA / ENGLISH) ---
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'kn' : 'en';
+      document.getElementById('lang-toggle-text').innerText = currentLang === 'en' ? 'ಕನ್ನಡ' : 'English';
+      
+      const elements = document.querySelectorAll('[data-en]');
+      elements.forEach(el => {
+        const text = el.getAttribute(`data-${currentLang}`);
+        if(text) el.innerText = text;
+      });
+
+      showToast(`Language switched to ${currentLang === 'en' ? 'English' : 'ಕನ್ನಡ'}`);
+    }
+
+    // --- LOAD BUS DATA INTO COCKPIT ---
+    function loadBusData(busNo) {
+      const bus = busesDB[busNo] || busesDB['KA-09-F-5421'];
+      
+      document.getElementById('current-bus-no').innerText = bus.no;
+      document.getElementById('current-bus-class').innerText = bus.class;
+      document.getElementById('current-service-code').innerText = bus.serviceCode;
+      document.getElementById('current-route-title').innerText = bus.route;
+      document.getElementById('current-bus-model').innerText = bus.model;
+      document.getElementById('status-text').innerText = bus.status;
+      document.getElementById('next-stop-name').innerText = bus.nextStop;
+      document.getElementById('next-stop-platform').innerText = bus.platform;
+      document.getElementById('current-speed').innerText = `${bus.speed} km/h`;
+      document.getElementById('eta-time').innerText = bus.eta;
+      document.getElementById('sim-speed-text').innerText = `${bus.speed} km/h`;
+      document.getElementById('driver-name').innerText = `${bus.driver} (Driver Crew)`;
+      document.getElementById('depot-name').innerText = `Depot: ${bus.depot}`;
+      document.getElementById('cockpit-subtitle').innerText = `Real-time satellite positioning for ${bus.no} (${bus.class})`;
+
+      busProgress = bus.progress;
+      updateProgressBar();
+      renderStopsTimeline(bus.stops);
+
+      showToast(`Loaded live tracking data for ${bus.no}`);
+    }
+
+    // --- RENDER STOPS TIMELINE ---
+    function renderStopsTimeline(stops) {
+      const container = document.getElementById('stops-container');
+      container.innerHTML = '';
+
+      stops.forEach((stop, index) => {
+        const isPast = stop.past;
+        const isActive = stop.active;
+
+        const stopCard = document.createElement('div');
+        stopCard.className = `p-4 rounded-xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+          isActive 
+            ? 'bg-yellow-950/30 border-yellow-500/50 text-white' 
+            : isPast 
+              ? 'bg-gray-950/40 border-gray-800 text-gray-400' 
+              : 'bg-gray-900 border-gray-800 text-gray-200'
+        }`;
+
+        stopCard.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
+              isActive 
+                ? 'bg-yellow-500 text-black animate-pulse' 
+                : isPast 
+                  ? 'bg-emerald-900/60 text-emerald-400 border border-emerald-700' 
+                  : 'bg-gray-800 text-gray-400'
+            }">
+              ${isPast ? '✓' : index + 1}
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h4 class="font-bold text-sm ${isActive ? 'text-yellow-400' : isPast ? 'text-gray-300' : 'text-white'}">${stop.name}</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded ${
+                  isActive ? 'bg-yellow-500/20 text-yellow-300' : isPast ? 'bg-emerald-950 text-emerald-400' : 'bg-gray-800 text-gray-400'
+                }">${stop.status}</span>
+              </div>
+              <p class="text-xs text-gray-400 mt-0.5">${stop.city} • ${stop.dist} • Halt: ${stop.halt}</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between sm:justify-end space-x-4 text-xs">
+            <div class="text-right">
+              <span class="text-gray-400 block text-[11px]">Sched / Est</span>
+              <span class="font-mono font-bold text-gray-200">${stop.sched}</span>
+            </div>
+            <div class="px-3 py-1 rounded-lg bg-gray-950 border border-gray-800 text-yellow-400 font-bold">
+              ${stop.bay}
+            </div>
+          </div>
+        `;
+        container.appendChild(stopCard);
+      });
+    }
+
+    // --- ANIMATION GPS SIMULATOR CONTROLS ---
+    function startSimulation() {
+      if(simInterval) clearInterval(simInterval);
+      simInterval = setInterval(() => {
+        if(isSimulating) {
+          busProgress += 0.2 * simSpeedMultiplier;
+          if(busProgress > 95) busProgress = 10;
+          updateProgressBar();
+        }
+      }, 1000);
+    }
+
+    function updateProgressBar() {
+      const bar = document.getElementById('route-progress-bar-fill');
+      const icon = document.getElementById('animated-bus-icon');
+      const pctText = document.getElementById('trip-percentage');
+      const covKm = document.getElementById('distance-covered');
+      const remKm = document.getElementById('distance-remaining');
+
+      if(bar) bar.style.width = `${busProgress}%`;
+      if(icon) icon.style.left = `calc(${busProgress}% - 20px)`;
+      if(pctText) pctText.innerText = `${Math.round(busProgress)}%`;
+      
+      const totalDist = 145;
+      const currentCov = Math.round((busProgress / 100) * totalDist);
+      if(covKm) covKm.innerText = `${currentCov} km`;
+      if(remKm) remKm.innerText = `${totalDist - currentCov} km`;
+    }
+
+    function toggleSimulation() {
+      isSimulating = !isSimulating;
+      const text = document.getElementById('sim-text');
+      const icon = document.getElementById('sim-icon');
+      if(isSimulating) {
+        text.innerText = 'Pause';
+        icon.className = 'fa-solid fa-pause';
+        showToast('GPS Tracker Simulation Resumed');
+      } else {
+        text.innerText = 'Resume';
+        icon.className = 'fa-solid fa-play';
+        showToast('GPS Tracker Simulation Paused');
+      }
+    }
+
+    function setSpeedMultiplier(mult) {
+      simSpeedMultiplier = mult;
+      document.getElementById('speed-1x-btn').className = mult === 1 ? 'px-2.5 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold' : 'px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold';
+      document.getElementById('speed-2x-btn').className = mult === 2 ? 'px-2.5 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold' : 'px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold';
+      showToast(`Simulation speed set to ${mult}x`);
+    }
+
+    function triggerNextStop() {
+      busProgress = Math.min(busProgress + 15, 95);
+      updateProgressBar();
+      showToast('Simulated fast forward to next halt point');
+    }
+
+    function setSearchType(type) {
+      const tabs = ['bus', 'pnr', 'route'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`search-tab-${t}`);
+        if(t === type) {
+          btn.className = 'px-4 py-2 rounded-lg bg-red-600 text-white flex items-center space-x-2 whitespace-nowrap font-bold';
+        } else {
+          btn.className = 'px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 flex items-center space-x-2 whitespace-nowrap';
+        }
+      });
+    }
+
+    function executeBusSearch() {
+      const input = document.getElementById('busSearchInput').value.trim();
+      if(!input) {
+        showToast('Please enter a bus number or PNR', true);
+        return;
+      }
+      loadBusData('KA-09-F-5421');
+      switchTab('tracker');
+    }
+
+    function toggleAlerts() {
+      proximityAlerts = !proximityAlerts;
+      const btn = document.getElementById('alert-toggle-btn');
+      if(proximityAlerts) {
+        btn.innerText = 'Enabled';
+        btn.className = 'px-3 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold';
+        showToast('Proximity Chime Alert activated');
+      } else {
+        btn.innerText = 'Disabled';
+        btn.className = 'px-3 py-1 rounded-full bg-gray-800 text-gray-400 text-[11px] font-bold';
+        showToast('Proximity Chime Alert disabled');
+      }
+    }
+
+    function copyBusShareLink() {
+      document.execCommand('copy');
+      showToast('Live tracking link copied to clipboard!');
+    }
+
+    function callDriver() {
+      showToast('Connecting direct call to Bus Driver Ramesh (09845012345)...');
+    }
+
+    // --- TERMINAL BOARDS VIEW LOGIC ---
+    function renderTerminalBoard() {
+      const tbody = document.getElementById('terminal-tbody');
+      const sampleBoard = [
+        { no: 'KA-09-F-5421', class: 'Airavat Club Class', dest: 'Mysuru Suburban', terminal: 'Kempegowda (Majestic)', bay: 'Bay 12', time: '06:30 AM', status: 'On Time', sColor: 'text-emerald-400' },
+        { no: 'KA-19-F-3312', class: 'Ambari Utsav', dest: 'Mangaluru Bejai', terminal: 'Kempegowda (Majestic)', bay: 'Bay 20', time: '21:00 PM', status: 'Boarding', sColor: 'text-yellow-400' },
+        { no: 'KA-01-F-8841', class: 'Flybus', dest: 'KIA Airport ➔ Mysuru', terminal: 'Mysuru Suburban', bay: 'Bay 22', time: '10:30 AM', status: 'Departed', sColor: 'text-gray-400' },
+        { no: 'KA-25-F-7744', class: 'Rajahamsa', dest: 'Hubballi Gokul Stand', terminal: 'Kempegowda (Majestic)', bay: 'Bay 08', time: '11:15 AM', status: 'On Time', sColor: 'text-emerald-400' },
+        { no: 'KA-07-F-2289', class: 'Karnataka Sarige', dest: 'Tirupati Central', terminal: 'Kempegowda (Majestic)', bay: 'Bay 15', time: '12:00 PM', status: 'Delayed 15m', sColor: 'text-red-400' }
+      ];
+
+      tbody.innerHTML = '';
+      sampleBoard.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-800/50 transition';
+        tr.innerHTML = `
+          <td class="p-4 font-bold text-white">${row.no}</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded bg-gray-800 text-yellow-400 font-semibold text-[11px]">${row.class}</span></td>
+          <td class="p-4 font-semibold text-gray-200">${row.dest}</td>
+          <td class="p-4 text-gray-400">${row.terminal}</td>
+          <td class="p-4 font-bold text-yellow-400">${row.bay}</td>
+          <td class="p-4 font-mono">${row.time}</td>
+          <td class="p-4 font-bold ${row.sColor}">${row.status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTerminalBoard() {
+      renderTerminalBoard();
+      showToast('Filtered Terminal Board results');
+    }
+
+    // --- DISTRICTS GRID RENDER ---
+    function renderDistricts() {
+      const grid = document.getElementById('districts-grid');
+      grid.innerHTML = '';
+
+      districtsData.forEach(d => {
+        const card = document.createElement('div');
+        card.className = 'district-card bg-gray-900 border border-gray-800 p-4 rounded-xl hover:border-red-500/50 transition cursor-pointer space-y-2';
+        card.onclick = () => {
+          showToast(`Displaying active routes for ${d.name}`);
+          switchTab('tracker');
+        };
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-red-400 font-mono">${d.code}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">${d.buses} Live Buses</span>
+          </div>
+          <h3 class="font-extrabold text-white text-base">${d.name}</h3>
+          <p class="text-xs text-gray-400"><i class="fa-solid fa-warehouse mr-1 text-gray-500"></i>Depot: ${d.depot}</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterDistricts() {
+      const query = document.getElementById('districtSearch').value.toLowerCase();
+      const cards = document.querySelectorAll('.district-card');
+      cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        if(text.includes(query)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // --- ROUTE TIMETABLE LOOKUP ---
+    function searchTimetable() {
+      const origin = document.getElementById('tt-origin').value;
+      const dest = document.getElementById('tt-dest').value;
+      const container = document.getElementById('timetable-results');
+
+      container.innerHTML = `
+        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl space-y-3">
+          <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+            <h4 class="font-bold text-white text-sm">Express Services: ${origin} ➔ ${dest}</h4>
+            <span class="text-xs text-emerald-400 font-bold">14 Daily Trips Available</span>
+          </div>
+          <div class="space-y-2 text-xs">
+            <div class="p-3 bg-gray-950 rounded-xl flex justify-between items-center">
+              <div>
+                <span class="font-bold text-yellow-400 block">06:30 AM • Airavat Club Class</span>
+                <span class="text-gray-400">Duration: 3h 15m • Fare: ₹380</span>
+              </div>
+              <button onclick="switchTab('tracker')" class="px-3 py-1.5 bg-red-600 text-white rounded-lg font-bold">Track Live</button>
+            </div>
+            <div class="p-3 bg-gray-950 rounded-xl flex justify-between items-center">
+              <div>
+                <span class="font-bold text-purple-400 block">08:00 AM • Ambari Utsav Sleeper</span>
+                <span class="text-gray-400">Duration: 3h 30m • Fare: ₹520</span>
+              </div>
+              <button onclick="switchTab('tracker')" class="px-3 py-1.5 bg-red-600 text-white rounded-lg font-bold">Track Live</button>
+            </div>
+          </div>
+        </div>
+      `;
+      showToast(`Showing timetable schedules for ${origin} to ${dest}`);
+    }
+
+    // --- FLEET GRID RENDER ---
+    function renderFleetGrid() {
+      const container = document.getElementById('fleet-grid');
+      container.innerHTML = '';
+
+      fleetData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-3 shadow-xl hover:border-gray-700 transition';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="w-10 h-10 rounded-xl bg-red-600/20 text-red-500 flex items-center justify-center text-xl">
+              <i class="fa-solid ${item.icon}"></i>
+            </div>
+            <span class="text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-red-950 text-red-400 border border-red-800">${item.tag}</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-white">${item.name}</h3>
+            <p class="text-xs font-semibold text-yellow-400 mt-0.5">${item.badge}</p>
+          </div>
+          <p class="text-xs text-gray-400 leading-relaxed">${item.desc}</p>
+          <div class="pt-2 border-t border-gray-800 flex items-center justify-between text-xs text-gray-400">
+            <span><i class="fa-solid fa-wifi text-emerald-400 mr-1"></i>Free Wi-Fi</span>
+            <span><i class="fa-solid fa-plug text-yellow-400 mr-1"></i>USB Charging</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- PASSENGER SUPPORT FORM ---
+    function submitLostReport(e) {
+      e.preventDefault();
+      showToast('Lost item complaint logged! Token ID #KSRTC-LST-8849 generated.');
+      e.target.reset();
+    }
+
+    // --- SOS MODAL HELPERS ---
+    function openSosModal() {
+      document.getElementById('sosModal').classList.remove('hidden');
+    }
+
+    function closeSosModal() {
+      document.getElementById('sosModal').classList.add('hidden');
+    }
+
+    function simulateSosBeacon() {
+      showToast('Emergency GPS location coordinates transmitted to Nearest Police Control!');
+      closeSosModal();
+    }
+
+    // --- TOAST NOTIFICATIONS ---
+    function showToast(message, isError = false) {
+      const box = document.getElementById('toastBox');
+      const msg = document.getElementById('toastMsg');
+      const icon = document.getElementById('toastIcon');
+
+      msg.innerText = message;
+      if(isError) {
+        icon.className = 'fa-solid fa-triangle-exclamation text-red-400 text-base';
+      } else {
+        icon.className = 'fa-solid fa-circle-check text-emerald-400 text-base';
+      }
+
+      box.classList.remove('hidden');
+      setTimeout(() => {
+        box.classList.add('hidden');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
